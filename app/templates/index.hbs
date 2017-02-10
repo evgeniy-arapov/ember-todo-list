@@ -1,0 +1,10 @@
+<h1>ToDo List</h1>
+<p>Enter new task:</p>
+{{#todo-list addTask=(action "addTask")}}
+    {{#each sortedModel as |task|}}
+      {{todo-item task=task removeTask=(action "removeTask")}}
+    {{/each}}
+{{/todo-list}}
+
+
+
