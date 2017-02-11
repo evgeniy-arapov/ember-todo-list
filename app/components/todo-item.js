@@ -1,30 +1,18 @@
 import Ember from 'ember';
+import TimeFormat from '../utils/time-format';
 
 export default Ember.Component.extend({
   classNames: ['todo-item'],
   tagName: 'tr',
   statuses: ["none", "complete", "noComplete", "inProgress"],
 
-  didInsertElement() {
-    this.timer();
+  init() {
+    this._super(...arguments);
+    this.set('timeFormat', TimeFormat.create());
   },
 
-  getTimefromSecs(seconds, format){
-    if(format === "seconds"){
-      return seconds;
-    }
-    var h = Math.floor(seconds / 3600);
-    seconds = seconds % 3600;
-    var m = Math.floor(seconds / 60);
-    var s = Math.floor(seconds % 60);
-    h = h < 10 ? "0" + h : h;
-    m = m < 10 ? "0" + m : m;
-    s = s < 10 ? "0" + s : s;
-    if(format === "HH:MM"){
-      return h + ":" + m;
-    } else if(format === "HH:MM:SS") {
-      return h + ":" + m + ":" + s;
-    }
+  didInsertElement() {
+    this.timer();
   },
 
   timer() {
@@ -36,14 +24,12 @@ export default Ember.Component.extend({
       this.set('timerId', Ember.run.later(() => {
         let now = new Date();
         let timeElapsed = timeInProgress + (now - startInProgress);
-        let secs = Math.floor(timeElapsed / 1000);
-        this.set("duration", this.getTimefromSecs(secs, "HH:MM:SS"));
+        this.set("duration", this.timeFormat.fromMs(timeElapsed));
         this.timer();
       }, 1000));
     }
     else {
-      let secs = Math.floor(task.get('timeInProgress')/1000);
-      this.set('duration', this.getTimefromSecs(secs, "HH:MM:SS"));
+      this.set('duration', this.timeFormat.fromMs(timeInProgress));
     }
   },
 
