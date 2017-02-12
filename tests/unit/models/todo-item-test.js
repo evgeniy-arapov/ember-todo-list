@@ -5,8 +5,22 @@ moduleForModel('todo-item', 'Unit | Model | todo item', {
   needs: []
 });
 
-test('it exists', function(assert) {
-  let model = this.subject();
+test('Model created with default values', function(assert) {
+
+  const defaultValues = {
+    status: "none",
+    timeInProgress: 0,
+    startInProgress: null
+  };
+
+  let model = this.subject({ title: "foo"});
   // let store = this.store();
-  assert.ok(!!model);
+  assert.ok(!!model, "model is set");
+
+  assert.equal(model.get('title'), 'foo', "Title value ok");
+
+  // test defaultValues
+  assert.equal(model.get('status'), defaultValues.status, "default status value - ok");
+  assert.equal(model.get('timeInProgress'), defaultValues.timeInProgress, "default timeInProgress value - ok");
+  assert.equal(model.get('startInProgress'), defaultValues.startInProgress, "default startInProgress value - ok");
 });

@@ -4,7 +4,7 @@ import { module, test } from 'qunit';
 module('Unit | Helper | time format');
 
 // helper uses a utility, and utility is tested
-test('it works', function(assert) {
+test('Helper works and throw Error if timeIn unkown', function(assert) {
   assert.expect(2);
 
   let result = timeFormat([4234567890], {});

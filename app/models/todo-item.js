@@ -5,6 +5,6 @@ export default DS.Model.extend({
   title : DS.attr('string'),
   status: DS.attr('string', { defaultValue: "none"}),
   timeInProgress: DS.attr('number', { defaultValue: 0}),
-  startInProgress: DS.attr('date'),
+  startInProgress: DS.attr('date', { defaultValue: null }),
   rev   : DS.attr('string')
 });

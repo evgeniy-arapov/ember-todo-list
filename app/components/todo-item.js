@@ -19,9 +19,12 @@ export default Ember.Component.extend({
   duration: Ember.computed('now', function () {
     let timeInProgress = this.get('task.timeInProgress');
 
+    // If the status is not "inProgress", then show the duration from saved.
     if (!this.get('task.startInProgress')) {
       return timeInProgress;
     }
+
+    // If the status is "inProgress", calculate the duration.
     else {
       let startInProgress = this.get('task.startInProgress');
       let now = this.get('now');
@@ -36,10 +39,15 @@ export default Ember.Component.extend({
 
       task.set('status', status);
 
+      // If the status is changed to "inProgress" - set the starting time
+      // and start a timer to display the elapsed time.
       if (status === 'inProgress') {
         task.set('startInProgress', new Date());
         this.send('timerOn');
       }
+
+      // If the status is changed from "inProgress" on any other - set the total duration of the status
+      // and stop the timer to display the elapsed time.
       else if (task.startInProgress !== null) {
         task.set('timeInProgress', this.get('duration'));
         task.set('startInProgress', null);
