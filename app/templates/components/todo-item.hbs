@@ -1,16 +1,16 @@
 <td>
-  <select onchange={{action 'changeStatus'}}>
+  <select title="status" onchange={{action 'handleChangeStatus'}}>
     {{#each statuses as |status|}}
       <option value={{status}} selected={{eq task.status status}}>{{status}}</option>
     {{/each}}
   </select>
 </td>
 <td width="60">
-  {{duration}}
+  {{time-format duration}}
 </td>
 <td>
   {{task.title}}
 </td>
 <td>
-  <button {{action 'removeTask'}}>remove task</button>
+  <button {{action 'handleRemoveTask'}}>remove task</button>
 </td>

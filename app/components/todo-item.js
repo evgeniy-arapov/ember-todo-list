@@ -1,5 +1,4 @@
 import Ember from 'ember';
-import TimeFormat from '../utils/time-format';
 
 export default Ember.Component.extend({
   classNames: ['todo-item'],
@@ -8,49 +7,43 @@ export default Ember.Component.extend({
 
   init() {
     this._super(...arguments);
-    this.set('timeFormat', TimeFormat.create());
+    this.set('now', new Date());
   },
 
   didInsertElement() {
-    this.timer();
+    if (this.get('task.status') === 'inProgress') {
+      this.send('timerOn');
+    }
   },
 
-  timer() {
-    let task = this.get('task');
-    let timeInProgress = task.get('timeInProgress');
-    let startInProgress = task.get('startInProgress');
+  duration: Ember.computed('now', function () {
+    let timeInProgress = this.get('task.timeInProgress');
 
-    if(task.get('status') === 'inProgress') {
-      this.set('timerId', Ember.run.later(() => {
-        let now = new Date();
-        let timeElapsed = timeInProgress + (now - startInProgress);
-        this.set("duration", this.timeFormat.fromMs(timeElapsed));
-        this.timer();
-      }, 1000));
+    if (!this.get('task.startInProgress')) {
+      return timeInProgress;
     }
     else {
-      this.set('duration', this.timeFormat.fromMs(timeInProgress));
+      let startInProgress = this.get('task.startInProgress');
+      let now = this.get('now');
+      return timeInProgress + (now - startInProgress);
     }
-  },
+  }),
 
   actions: {
-    changeStatus(event) {
+    handleChangeStatus(event) {
       let status = event.target.value;
       let task = this.get('task');
+
       task.set('status', status);
 
-      if( status === 'inProgress') {
+      if (status === 'inProgress') {
         task.set('startInProgress', new Date());
-        this.timer();
+        this.send('timerOn');
       }
       else if (task.startInProgress !== null) {
-        let timeInProgress = task.get('timeInProgress');
-        let startInProgress = task.get('startInProgress');
-        let now = new Date();
-        let newTimeInProgress = timeInProgress + (now - startInProgress);
-        task.set('timeInProgress', newTimeInProgress);
+        task.set('timeInProgress', this.get('duration'));
         task.set('startInProgress', null);
-        Ember.run.cancel(this.get('timerId'));
+        this.send('timerOff');
       }
 
       task.save()
@@ -59,18 +52,28 @@ export default Ember.Component.extend({
         });
     },
 
-    removeTask() {
+    handleRemoveTask() {
       this.get('removeTask')(this.get('task'))
         .catch(err => {
           console.log(err);
         });
+    },
+
+    timerOn() {
+      this.set('timerId', setInterval(() => {
+        this.set('now', new Date());
+      }, 1000));
+    },
+
+    timerOff() {
+      clearInterval(this.get('timerId'));
     }
   },
 
   willDestroyElement() {
     let timerId = this.get("timerId");
-    if(timerId) {
-      Ember.run.cancel(timerId);
+    if (timerId) {
+      clearInterval(timerId);
     }
   }
 });
